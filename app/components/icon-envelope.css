@@ -3,6 +3,10 @@
   cursor: pointer;
   user-select: none;
 }
+.icon-envelope.unavailable {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
 .icon-envelope:focus {
   outline: none;
 }
@@ -124,4 +128,19 @@
   transition-delay: 180ms;
   transform: translateX(-50%) translateY(-46px) scale(1);
   opacity: 1;
+}
+
+.unavailable-x {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  font-weight: 900;
+  color: #dc2626;
+  opacity: 0.9;
+  pointer-events: none;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 20;
 }

@@ -9,12 +9,14 @@ import './icon-envelope.css';
 export default function IconEnvelope({
   num,
   isOpen = false,
+  isUnavailable = false,
   onChangeOpen,
   onRequestOpen,
   rootRef,
 }: {
   num?: number;
   isOpen?: boolean;
+  isUnavailable?: boolean;
   onChangeOpen?: (next: boolean) => void;
   onRequestOpen?: (info: { num?: number; rect: DOMRect }) => void;
   rootRef?: (el: HTMLDivElement | null) => void;
@@ -22,6 +24,7 @@ export default function IconEnvelope({
   const wrapperRef = React.useRef<HTMLDivElement | null>(null);
 
   function toggleOpen() {
+    if (isUnavailable) return;
     const next = !isOpen;
     if (next && onRequestOpen && wrapperRef.current) {
       const rect = wrapperRef.current.getBoundingClientRect();
@@ -32,13 +35,23 @@ export default function IconEnvelope({
 
   return (
     <div
-      className={`icon-envelope ${isOpen ? 'open' : ''}`}
+      className={`icon-envelope ${isOpen ? 'open' : ''} ${
+        isUnavailable ? 'unavailable' : ''
+      }`}
       role='button'
-      tabIndex={0}
+      tabIndex={isUnavailable ? -1 : 0}
       aria-pressed={isOpen}
-      aria-label={isOpen ? 'Envelope open' : 'Envelope closed'}
+      aria-label={
+        isUnavailable
+          ? 'Envelope unavailable'
+          : isOpen
+          ? 'Envelope open'
+          : 'Envelope closed'
+      }
+      aria-disabled={isUnavailable}
       onClick={toggleOpen}
       onKeyDown={(e) => {
+        if (isUnavailable) return;
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           toggleOpen();
@@ -69,6 +82,12 @@ export default function IconEnvelope({
         <div className='letter' aria-hidden='true'>
           <div className='letter-lines' />
         </div>
+
+        {isUnavailable && (
+          <div className='unavailable-x' aria-hidden='true'>
+            ×
+          </div>
+        )}
       </div>
     </div>
   );
