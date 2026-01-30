@@ -1,0 +1,57 @@
+.animated-envelope {
+  display: inline-block;
+  cursor: pointer;
+  user-select: none;
+  perspective: 800px; /* gives depth for 3D rotation */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ensure svg scales nicely */
+.animated-envelope svg {
+  display: block;
+}
+
+/* the flap will rotate around its hinge; we set transform-origin in both JS and CSS for cross-browser */
+.animated-envelope .flap {
+  transform-origin: 100px 41px; /* x y in SVG user units (center top hinge point) */
+  transform-box: fill-box; /* ensures transform-origin uses object bounding box if needed */
+  transition: transform 600ms cubic-bezier(0.2, 0.9, 0.2, 1);
+  transform: rotateX(0deg);
+  transform-style: preserve-3d;
+}
+
+/* the letter sits behind the flap; we'll slide it up when open */
+.animated-envelope .letter {
+  /* Start fully hidden (no transition) so it doesn't 'pop' on initial render.
+     The letter will become visible and animate only when the parent gets the
+     .open class (see rule below). */
+  transform: translateY(20px) translateZ(0);
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: center top;
+}
+
+/* when open, rotate the flap up (negative rotateX flips it backward toward the viewer),
+   and slide the letter up/out. adjust values for the exact look you want. */
+.animated-envelope.open .flap {
+  transform: rotateX(
+    -170deg
+  ); /* near 180 looks like fully flipped; tweak as needed */
+}
+
+/* move the letter upward and slightly out of envelope */
+.animated-envelope.open .letter {
+  /* When opening, animate the letter into view. We apply the transition here
+     so transitions only run when going to the open state (avoids flashes).
+     Tweak delays/easing to match the flap timing for a realistic effect. */
+  transition: transform 650ms cubic-bezier(0.2, 0.9, 0.2, 1) 120ms,
+    opacity 300ms 120ms;
+  transform: translateY(-70px) translateZ(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* optional minor shadow/scale effect to add polish */
+.animated-envelope:active {
+  transform: scale(0.995);
+}

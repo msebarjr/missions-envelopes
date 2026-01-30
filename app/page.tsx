@@ -1,65 +1,105 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useRef } from 'react';
+import IconEnvelope from './components/IconEnvelope';
+import FloatingLetterModal from './components/FloatingLetterModal';
 
 export default function Home() {
+  const [modalInfo, setModalInfo] = useState<null | {
+    num?: number;
+    rect: DOMRect;
+  }>(null);
+  // track which envelope number is currently shown as open (only one at a time)
+  const [openNum, setOpenNum] = useState<number | null>(null);
+  // refs to each envelope DOM element so we can read bounding rects for random open
+  const iconElsRef = useRef<Array<HTMLDivElement | null>>([]);
+
+  function handleRequestOpen(info: { num?: number; rect: DOMRect }) {
+    setModalInfo(info);
+  }
+
+  function handleRandomOpen() {
+    const idx = Math.floor(Math.random() * 100);
+    setOpenNum(idx + 1);
+    // read rect on next frame to ensure DOM updated
+    requestAnimationFrame(() => {
+      const el = iconElsRef.current[idx];
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        handleRequestOpen({ num: idx + 1, rect });
+      }
+    });
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main>
+      <h1>Mission Envelopes</h1>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          flexWrap: 'wrap',
+          marginTop: 6,
+        }}
+      >
+        <p style={{ margin: 0 }}>Click the envelope to open it.</p>
+        <button
+          onClick={handleRandomOpen}
+          style={{ padding: '8px 12px', borderRadius: 6, cursor: 'pointer' }}
+          aria-label='Open a random envelope'
+        >
+          Open Random Envelope
+        </button>
+      </div>
+      <div style={{ marginTop: '1rem' }}>
+        <b>
+          **Once you open an envelope, you can choose to donate to the cause
+          inside. Upon receiving the donation, Michael & Eric will update this
+          site to reflect the changes**
+        </b>
+      </div>
+      <div style={{ marginTop: 24 }}>
+        {/* Render 100 envelopes in a responsive grid */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))',
+            gap: 30,
+            alignItems: 'center',
+          }}
+        >
+          {Array.from({ length: 100 }, (_, i) => (
+            <div key={i} style={{ display: 'flex', justifyContent: 'center' }}>
+              <IconEnvelope
+                num={i + 1}
+                isOpen={openNum === i + 1}
+                onChangeOpen={(next) => {
+                  // ensure only one open at a time
+                  if (next) setOpenNum(i + 1);
+                  else setOpenNum((prev) => (prev === i + 1 ? null : prev));
+                }}
+                // provide a callback ref so parent can read the element for random open
+                rootRef={(el) => (iconElsRef.current[i] = el)}
+                onRequestOpen={(info) => {
+                  // parent still shows the floating modal for animation
+                  handleRequestOpen(info);
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {modalInfo && (
+        <FloatingLetterModal
+          num={modalInfo.num}
+          onClose={() => {
+            setModalInfo(null);
+            setOpenNum(null); // also close the envelope visual when modal closes
+          }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      )}
+    </main>
   );
 }

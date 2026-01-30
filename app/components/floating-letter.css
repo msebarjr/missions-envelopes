@@ -1,0 +1,157 @@
+.floating-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0);
+  transition: background 200ms ease;
+}
+.floating-modal-overlay.visible {
+  background: rgba(0, 0, 0, 0.18);
+}
+.modal-container {
+  position: relative;
+  z-index: 50;
+  width: min(92vw, 720px);
+  max-width: 720px;
+  max-height: calc(100vh - 48px);
+  background: #fffbe6;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+.floating-modal-overlay .modal-container {
+  transform: translateY(6px) scale(0.99);
+  opacity: 0;
+}
+.floating-modal-overlay.visible .modal-container {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+.floating-badge {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  background: #4c51bf;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+/* when expanded we make the overlay visible and show modal content inside the floating-letter
+   We'll slightly scale up the element to fill a large central area, then replace with modal content.
+*/
+.modal-container .modal-inner-placeholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 400px;
+  height: 100%;
+  padding: 2rem 20px;
+  box-sizing: border-box;
+  background: transparent;
+  overflow: hidden;
+}
+
+.modal-inner-placeholder .choice-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  padding: 2rem 0;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+}
+
+/* top money icon */
+.top-icon {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 4px;
+}
+.money-icon {
+  color: #10b981; /* green-500 */
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.donate-btn {
+  width: 100%;
+  padding: 10px 14px;
+  background: #ef4444;
+  color: white;
+  border-radius: 8px;
+  text-align: center;
+  box-sizing: border-box;
+}
+.donate-btn:hover {
+  opacity: 0.9;
+}
+
+/* close button in the top-right of modal content */
+.floating-close {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  margin: 0;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+.floating-close:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.02);
+}
+.floating-close:active {
+  transform: scale(0.98);
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 640px) {
+  .modal-container {
+    width: calc(100vw - 32px);
+    max-width: calc(100vw - 32px);
+    border-radius: 12px;
+  }
+  .modal-container .modal-inner-placeholder {
+    /* on mobile make inner content scrollable if needed and use more vertical space */
+    height: 500px;
+    padding: 16px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .donate-btn {
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 1rem;
+  }
+  .floating-close {
+    right: 12px;
+    top: 12px;
+    width: 48px;
+    height: 48px;
+    font-size: 1.25rem;
+  }
+}
